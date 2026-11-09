@@ -60,9 +60,9 @@ La solución implementa un flujo de entrenamiento donde:
 
 ## Estado actual
 - [x] **Fase 1 — Inicialización y sincronización de Git:** repositorio local inicializado, `.gitignore` estándar Android aplicado, commit inicial realizado y rama `main` sincronizada con el remoto.
-- [ ] **Fase 2 — Documentación base:** `README.md` creado/actualizado (este documento).
-- [ ] **Fase 3 — Issues en GitHub:** pendiente (requiere GitHub CLI `gh` autenticado o creación manual/API).
-- [ ] **Fase 4 — Primera feature:** pendiente (Issue 1).
+- [x] **Fase 2 — Documentación base:** `README.md` creado/actualizado.
+- [x] **Fase 3 — Issues en GitHub:** issues **#1–#8** creadas, etiquetadas y asignadas en el repositorio remoto.
+- [ ] **Fase 4 — Primera feature (Issue #1):** en progreso en la rama `feature/core-setup-and-constants` (PR con `Closes #1`; marcar `[x]` en **#1** al mergear).
 
 ## Requisitos técnicos (referencia)
 - Android Studio (versión estable reciente) con SDK/emuladores para Phone y Wear OS.

@@ -25,3 +25,4 @@ dependencyResolutionManagement {
 rootProject.name = "Fitness Tracker & Workout Session Companion"
 include(":mobile")
 include(":wear")
+include(":shared")
