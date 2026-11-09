@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Fitness Tracker &amp; Workout Session Companion</string>
+    <string name="hello_world">Hello, %1$s!</string>
+</resources>
