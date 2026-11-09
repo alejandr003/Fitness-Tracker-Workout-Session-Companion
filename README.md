@@ -39,9 +39,9 @@ La solución implementa un flujo de entrenamiento donde:
 - Configuración Gradle en raíz (`build.gradle.kts`, `settings.gradle.kts`, `gradle/libs.versions.toml`).
 
 ## Roadmap / Checklist de Issues
-> Los IDs `#1`–`#8` corresponden al plan de trabajo del proyecto. Las issues se crearán en GitHub (Fase 3) y se vincularán a PRs/commits conforme avance el desarrollo.
+> Issues **#1–#8** creadas en GitHub y vinculadas al plan de trabajo. Se actualizan con PRs/commits conforme avance el desarrollo (`Closes #N`).
 
-- [ ] **#1 — [Setup] Core architecture, dependencies and shared Wearable constants** (`@alejandr003`)  
+- [x] **#1 — [Setup] Core architecture, dependencies and shared Wearable constants** (`@alejandr003`) — *completada, PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9) mergeada; Issue cerrada*  
   Dependencias `play-services-wearable` y `kotlinx-coroutines-play-services` en ambos módulos; paths/keys compartidos (`/workout/action`, `/fitness/metrics`) y modelos serializables.
 - [ ] **#2 — [Mobile] UI dashboard, timer state engine & workout session controller** (`@alejandr003`)  
   Pantalla principal, cronómetro, selector de meta diaria y base de control de sesión.
@@ -62,7 +62,7 @@ La solución implementa un flujo de entrenamiento donde:
 - [x] **Fase 1 — Inicialización y sincronización de Git:** repositorio local inicializado, `.gitignore` estándar Android aplicado, commit inicial realizado y rama `main` sincronizada con el remoto.
 - [x] **Fase 2 — Documentación base:** `README.md` creado/actualizado.
 - [x] **Fase 3 — Issues en GitHub:** issues **#1–#8** creadas, etiquetadas y asignadas en el repositorio remoto.
-- [ ] **Fase 4 — Primera feature (Issue #1):** en progreso en la rama `feature/core-setup-and-constants` (PR con `Closes #1`; marcar `[x]` en **#1** al mergear).
+- [x] **Fase 4 — Primera feature (Issue #1):** completada. PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9) mergeada a `main` e Issue **#1** cerrada. Siguiente: Issues #2–#6 según asignación.
 
 ## Requisitos técnicos (referencia)
 - Android Studio (versión estable reciente) con SDK/emuladores para Phone y Wear OS.
