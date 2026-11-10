@@ -1,8 +1,13 @@
 package com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.workout
 
+import android.app.Application
 import android.os.SystemClock
-import androidx.lifecycle.ViewModel
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.communication.FitnessMetricsPublisher
+import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.communication.WorkoutCommandBus
+import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.shared.FitnessMetrics
 import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.shared.WorkoutAction
 import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.shared.WorkoutSessionState
 import kotlinx.coroutines.Job
@@ -14,16 +19,28 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
- * Screen state holder for the mobile workout session (Issue #2).
- * Owns timer state and valid transitions; exposes a command entry point for Issue #3 (Wearable listener).
+ * Screen state holder for the mobile workout session (Issues #2, #3).
+ * Owns timer state and transitions; consumes Wear OS commands and publishes /fitness/metrics.
  */
-class WorkoutSessionViewModel : ViewModel() {
+class WorkoutSessionViewModel(application: Application) : AndroidViewModel(application) {
+    private val metricsPublisher = FitnessMetricsPublisher(application)
+
     private val _uiState = MutableStateFlow(WorkoutUiState())
     val uiState: StateFlow<WorkoutUiState> = _uiState.asStateFlow()
 
     private var tickerJob: Job? = null
     private var accumulatedMs: Long = 0L
     private var activeStartElapsedRealtime: Long = 0L
+    private var lastPublishedAtElapsedRealtime: Long = 0L
+
+    init {
+        viewModelScope.launch {
+            WorkoutCommandBus.actions.collect { action ->
+                Log.d(TAG, "Applying command from Wear OS: $action")
+                handleAction(action)
+            }
+        }
+    }
 
     fun onStart() = handleAction(WorkoutAction.START)
     fun onPause() = handleAction(WorkoutAction.PAUSE)
@@ -31,6 +48,7 @@ class WorkoutSessionViewModel : ViewModel() {
 
     fun onDailyGoalChange(minutes: Int) {
         _uiState.update { it.copy(dailyGoalMinutes = minutes.coerceIn(1, 240)) }
+        publishMetrics(force = true)
     }
 
     /**
@@ -63,6 +81,7 @@ class WorkoutSessionViewModel : ViewModel() {
                 lastAction = WorkoutAction.START.payload,
             )
         }
+        publishMetrics(force = true)
         startTicker()
     }
 
@@ -77,6 +96,7 @@ class WorkoutSessionViewModel : ViewModel() {
                 lastAction = WorkoutAction.PAUSE.payload,
             )
         }
+        publishMetrics(force = true)
     }
 
     private fun stopSession() {
@@ -93,6 +113,7 @@ class WorkoutSessionViewModel : ViewModel() {
                 lastAction = WorkoutAction.STOP.payload,
             )
         }
+        publishMetrics(force = true)
     }
 
     private fun accumulateElapsed() {
@@ -106,16 +127,39 @@ class WorkoutSessionViewModel : ViewModel() {
         stopTicker()
         tickerJob = viewModelScope.launch {
             while (true) {
-                delay(250)
-                val elapsed = accumulatedMs + (SystemClock.elapsedRealtime() - activeStartElapsedRealtime)
+                delay(TICK_INTERVAL_MS)
+                val now = SystemClock.elapsedRealtime()
+                val elapsed = accumulatedMs + (now - activeStartElapsedRealtime)
+                var shouldPublish = false
                 _uiState.update { state ->
                     if (state.sessionState == WorkoutSessionState.ACTIVE) {
+                        shouldPublish = (now - lastPublishedAtElapsedRealtime) >= PUBLISH_INTERVAL_MS
                         state.copy(elapsedTimeMs = elapsed)
                     } else {
                         state
                     }
                 }
+                if (shouldPublish) {
+                    publishMetrics(force = false)
+                }
             }
+        }
+    }
+
+    private fun publishMetrics(force: Boolean) {
+        val now = SystemClock.elapsedRealtime()
+        if (!force && (now - lastPublishedAtElapsedRealtime) < PUBLISH_INTERVAL_MS) return
+        lastPublishedAtElapsedRealtime = now
+        val state = _uiState.value
+        val metrics = FitnessMetrics(
+            sessionState = state.sessionState,
+            elapsedTimeMs = state.elapsedTimeMs,
+            dailyGoal = state.dailyGoalMinutes,
+            updatedAtMs = System.currentTimeMillis(),
+            lastAction = state.lastAction,
+        )
+        viewModelScope.launch {
+            metricsPublisher.publish(metrics)
         }
     }
 
@@ -127,5 +171,11 @@ class WorkoutSessionViewModel : ViewModel() {
     override fun onCleared() {
         stopTicker()
         super.onCleared()
+    }
+
+    private companion object {
+        const val TAG = "WorkoutSessionVM"
+        const val TICK_INTERVAL_MS = 250L
+        const val PUBLISH_INTERVAL_MS = 3_000L
     }
 }
