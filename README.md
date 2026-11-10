@@ -44,9 +44,9 @@ La solución implementa un flujo de entrenamiento donde:
 - [x] **#1 — [Setup] Core architecture, dependencies and shared Wearable constants** (`@alejandr003`) — *completada, PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9) mergeada; Issue cerrada*  
   Dependencias `play-services-wearable` y `kotlinx-coroutines-play-services` en ambos módulos; paths/keys compartidos (`/workout/action`, `/fitness/metrics`) y modelos serializables.
 - [x] **#2 — [Mobile] UI dashboard, timer state engine & workout session controller** (`@alejandr003`) — *completada, PR [#11](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/11) mergeada; Issue cerrada*  
-  Pantalla principal, cronómetro, selector de meta diaria, motor de estado (`START/PAUSE/STOP`) y base para comandos entrantes (Issue #3).
-- [ ] **#3 — [Mobile] Wearable communication layer (MessageClient listener & DataClient publisher)** (`@alejandr003`)  
-  Recepción de `START/PAUSE/STOP` desde Wear OS y publicación de `DataMap` de métricas.
+  Pantalla principal, cronómetro, selector de meta diaria, motor de estado (`START/PAUSE/STOP`) y base para comandos entrantes.
+- [x] **#3 — [Mobile] Wearable communication layer (MessageClient listener & DataClient publisher)** (`@alejandr003`) — *completada, PR [#12](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/12) mergeada; Issue cerrada*  
+  Listener `MessageClient` `/workout/action` (`START/PAUSE/STOP`), integración con controlador y publicación `DataClient` `/fitness/metrics` (por evento + periódica throttled).
 - [ ] **#4 — [WearOS] Wrist UI layout & workout controls screen** (`@NeyzerJss`)  
   UI para pantalla circular/cuadrada con controles accesibles y visualización de métricas.
 - [ ] **#5 — [WearOS] Command dispatcher via MessageClient** (`@NeyzerJss`)  
@@ -62,7 +62,7 @@ La solución implementa un flujo de entrenamiento donde:
 - [x] **Fase 1 — Inicialización y sincronización de Git:** repositorio local inicializado, `.gitignore` estándar Android aplicado, commit inicial realizado y rama `main` sincronizada con el remoto.
 - [x] **Fase 2 — Documentación base:** `README.md` creado/actualizado.
 - [x] **Fase 3 — Issues en GitHub:** issues **#1–#8** creadas, etiquetadas y asignadas en el repositorio remoto.
-- [x] **Fase 4 — Avance de features (Mobile):** **#1** completada (PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9)) y **#2** completada (PR [#11](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/11)). Siguiente: **#3** Mobile Wearable comms (`@alejandr003`), **#4–#6** Wear OS (`@NeyzerJss`), luego **#7/#8**.
+- [x] **Fase 4 — Avance de features:** lado **Mobile (`@alejandr003`) completado** — **#1** (PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9)), **#2** (PR [#11](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/11)), **#3** (PR [#12](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/12)). Pendiente: **#4–#6** Wear OS (`@NeyzerJss`), luego **#7** QA y **#8** demo/reporte.
 
 ## Requisitos técnicos (referencia)
 - Android Studio (versión estable reciente) con SDK/emuladores para Phone y Wear OS.
