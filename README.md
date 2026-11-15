@@ -35,7 +35,7 @@ La solución implementa un flujo de entrenamiento donde:
 
 ## Estructura del repositorio
 - `mobile/` — Aplicación Android (teléfono): dashboard, motor de sesión/cronómetro, publicación de métricas y recepción de comandos.
-- `wear/` — Aplicación Wear OS: UI de muñeca (`WearWorkoutScreen`), controles táctiles, despacho de comandos con `MessageClient` y (pendiente) sincronización reactiva.
+- `wear/` — Aplicación Wear OS: UI de muñeca (`WearWorkoutScreen`), controles táctiles, despacho de comandos con `MessageClient` y consumo reactivo de métricas con `DataClient`.
 - `shared/` — Contratos compartidos: paths/keys del Data Layer, acciones/estados de sesión, modelo `FitnessMetrics` y paleta visual.
 - Configuración Gradle en raíz (`build.gradle.kts`, `settings.gradle.kts`, `gradle/libs.versions.toml`).
 
@@ -50,10 +50,10 @@ La solución implementa un flujo de entrenamiento donde:
   Listener `MessageClient` `/workout/action` (`START/PAUSE/STOP`), integración con controlador y publicación `DataClient` `/fitness/metrics` (por evento + periódica throttled).
 - [x] **#4 — [WearOS] Wrist UI layout & workout controls screen** (`@NeyzerJss`) — *completada, PR [#13](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/13) mergeada; Issue cerrada*  
   UI para pantalla circular/cuadrada con estado, cronómetro, meta/progreso y controles Start/Pause/Stop. La capa visual queda lista para el envío de comandos (**#5**) y la sync reactiva (**#6**); `WearWorkoutUiState.fromMetrics()` ya está preparado para #6.
-- [x] **#5 — [WearOS] Command dispatcher via MessageClient** (`@NeyzerJss`) — *implementada; pendiente de PR/merge*  
+- [x] **#5 — [WearOS] Command dispatcher via MessageClient** (`@NeyzerJss`) — *completada, PR [#14](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/14) mergeada; Issue cerrada*  
   Descubrimiento de nodo con `NodeClient`, envío de `START/PAUSE/STOP` al path `/workout/action`, timeouts y feedback en UI (`Sending`, `sent`, `No phone connected`, `Could not send`).
-- [ ] **#6 — [WearOS] Reactive sync consumer via DataClient** (`@NeyzerJss`)  
-  Listener `onDataChanged` para deserializar métricas y actualizar UI en tiempo real.
+- [x] **#6 — [WearOS] Reactive sync consumer via DataClient** (`@NeyzerJss`) — *implementada; pendiente de PR/merge*  
+  Listener `onDataChanged` sobre `/fitness/metrics`, filtrado por path, parseo defensivo de `DataMap` (campos faltantes/inesperados), actualización reactiva del estado y ticker local para suavizar el cronómetro entre publicaciones.
 - [ ] **#7 — [QA] End-to-end integration testing on paired emulators** (`@alejandr003`, `@NeyzerJss`)  
   Validación del ciclo completo en emuladores pareados (Bluetooth bridge).
 - [ ] **#8 — [Docs] Demo video recording & academic project report** (`@alejandr003`, `@NeyzerJss`)  
@@ -64,7 +64,7 @@ La solución implementa un flujo de entrenamiento donde:
 - [x] **Fase 2 — Documentación base:** `README.md` creado/actualizado.
 - [x] **Fase 3 — Issues en GitHub:** issues **#1–#8** creadas, etiquetadas y asignadas en el repositorio remoto.
 - [x] **Fase 4a — Mobile:** lado **Mobile (`@alejandr003`) completado** — **#1** (PR [#9](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/9)), **#2** (PR [#11](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/11)), **#3** (PR [#12](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/12)).
-- [ ] **Fase 4b — Wear OS (`@NeyzerJss`):** **#4** completada (UI, PR [#13](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/13) mergeada); **#5** implementada (despacho con `MessageClient`, pendiente de PR/merge); pendiente **#6** (sync reactiva con `DataClient`). Después: **#7** QA en emuladores pareados y **#8** demo/reporte.
+- [ ] **Fase 4b — Wear OS (`@NeyzerJss`):** **#4** completada (UI, PR [#13](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/13) mergeada); **#5** completada (despacho con `MessageClient`, PR [#14](https://github.com/alejandr003/Fitness-Tracker-Workout-Session-Companion/pull/14) mergeada); **#6** implementada (sync reactiva con `DataClient`, pendiente de PR/merge). Después: **#7** QA en emuladores pareados y **#8** demo/reporte.
 
 ## Requisitos técnicos (referencia)
 - Android Studio (versión estable reciente) con SDK/emuladores para Phone y Wear OS.
