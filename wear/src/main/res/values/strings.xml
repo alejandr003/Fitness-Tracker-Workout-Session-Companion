@@ -2,7 +2,7 @@
     <string name="app_name">Fitness Tracker &amp; Workout Session Companion</string>
     <string name="wear_workout_title">Workout</string>
     <string name="wear_status_label">Status</string>
-    <string name="wear_status_idle">Idle</string>
+    <string name="wear_status_idle">None</string>
     <string name="wear_status_active">Active</string>
     <string name="wear_status_paused">Paused</string>
     <string name="wear_status_stopped">Stopped</string>
