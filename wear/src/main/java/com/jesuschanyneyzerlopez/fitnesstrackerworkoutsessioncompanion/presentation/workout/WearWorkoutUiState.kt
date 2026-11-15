@@ -13,7 +13,7 @@ enum class CommandFeedback {
     FAILED,
 }
 
-/** UI state rendered by the Wear OS workout screen (Issues #4 and #5). */
+/** UI state rendered by the Wear OS workout screen (Issues #4, #5 and #6). */
 data class WearWorkoutUiState(
     val sessionState: WorkoutSessionState = WorkoutSessionState.IDLE,
     val elapsedTimeMs: Long = 0L,
