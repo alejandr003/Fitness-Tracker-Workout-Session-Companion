@@ -1,4 +1,18 @@
 <resources>
     <string name="app_name">Fitness Tracker &amp; Workout Session Companion</string>
-    <string name="hello_world">Hello, %1$s!</string>
+    <string name="wear_workout_title">Workout</string>
+    <string name="wear_status_label">Status</string>
+    <string name="wear_status_idle">None</string>
+    <string name="wear_status_active">Active</string>
+    <string name="wear_status_paused">Paused</string>
+    <string name="wear_status_stopped">Stopped</string>
+    <string name="wear_timer_label">Timer</string>
+    <string name="wear_goal_label">Daily goal</string>
+    <string name="wear_goal_value">%1$d min</string>
+    <string name="wear_progress">Progress: %1$d / %2$d min (%3$d%%)</string>
+    <string name="wear_action_start">Start</string>
+    <string name="wear_action_resume">Resume</string>
+    <string name="wear_action_pause">Pause</string>
+    <string name="wear_action_stop">Stop</string>
+    <string name="wear_last_action">Last action: %1$s</string>
 </resources>
