@@ -15,4 +15,8 @@
     <string name="wear_action_pause">Pause</string>
     <string name="wear_action_stop">Stop</string>
     <string name="wear_last_action">Last action: %1$s</string>
+    <string name="wear_command_sending">Sending %1$s…</string>
+    <string name="wear_command_sent">%1$s sent</string>
+    <string name="wear_command_no_node">No phone connected</string>
+    <string name="wear_command_failed">Could not send %1$s</string>
 </resources>

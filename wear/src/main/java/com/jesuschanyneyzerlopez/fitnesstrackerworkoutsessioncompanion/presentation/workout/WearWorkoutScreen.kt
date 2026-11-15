@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,18 +39,25 @@ import androidx.wear.compose.material3.lazy.rememberTransformationSpec
 import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.R
 import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.presentation.theme.FitnessTrackerWorkoutSessionCompanionTheme
+import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.shared.WorkoutAction
 import com.jesuschanyneyzerlopez.fitnesstrackerworkoutsessioncompanion.shared.WorkoutSessionState
 import kotlin.math.roundToInt
 
 @Composable
-fun WearWorkoutRoute(modifier: Modifier = Modifier) {
+fun WearWorkoutRoute(
+    modifier: Modifier = Modifier,
+    viewModel: WearWorkoutViewModel = viewModel(),
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     WearWorkoutScreen(
-        state = WearWorkoutUiState(),
-        onStart = {},
-        onPause = {},
-        onStop = {},
+        state = state,
+        onStart = viewModel::onStart,
+        onPause = viewModel::onPause,
+        onStop = viewModel::onStop,
         modifier = modifier,
     )
 }
@@ -63,10 +71,11 @@ fun WearWorkoutScreen(
     modifier: Modifier = Modifier,
 ) {
     val statusColor = sessionStatusColor(state.sessionState)
-    val canStart = state.sessionState != WorkoutSessionState.ACTIVE
-    val canPause = state.sessionState == WorkoutSessionState.ACTIVE
-    val canStop = state.sessionState == WorkoutSessionState.ACTIVE ||
-        state.sessionState == WorkoutSessionState.PAUSED
+    val isSending = state.commandFeedback == CommandFeedback.SENDING
+    val canStart = state.sessionState != WorkoutSessionState.ACTIVE && !isSending
+    val canPause = state.sessionState == WorkoutSessionState.ACTIVE && !isSending
+    val canStop = (state.sessionState == WorkoutSessionState.ACTIVE ||
+        state.sessionState == WorkoutSessionState.PAUSED) && !isSending
 
     AppScaffold {
         val listState = rememberTransformingLazyColumnState()
@@ -167,6 +176,23 @@ fun WearWorkoutScreen(
                         transformation = SurfaceTransformation(transformationSpec),
                     ) {
                         Text(text = stringResource(R.string.wear_action_stop))
+                    }
+                }
+                if (state.commandFeedback != CommandFeedback.NONE) {
+                    item {
+                        Text(
+                            text = commandFeedbackMessage(
+                                feedback = state.commandFeedback,
+                                lastCommand = state.lastCommand,
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = commandFeedbackColor(state.commandFeedback),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .transformedHeight(this, transformationSpec),
+                        )
                     }
                 }
                 state.lastAction?.let { action ->
@@ -329,6 +355,33 @@ private fun ProgressTrack(progress: Float, modifier: Modifier = Modifier) {
 }
 
 @Composable
+private fun commandFeedbackMessage(feedback: CommandFeedback, lastCommand: WorkoutAction?): String =
+    when (feedback) {
+        CommandFeedback.NONE -> ""
+        CommandFeedback.SENDING -> stringResource(
+            R.string.wear_command_sending,
+            lastCommand?.payload.orEmpty(),
+        )
+        CommandFeedback.SENT -> stringResource(
+            R.string.wear_command_sent,
+            lastCommand?.payload.orEmpty(),
+        )
+        CommandFeedback.NO_NODE -> stringResource(R.string.wear_command_no_node)
+        CommandFeedback.FAILED -> stringResource(
+            R.string.wear_command_failed,
+            lastCommand?.payload.orEmpty(),
+        )
+    }
+
+@Composable
+private fun commandFeedbackColor(feedback: CommandFeedback): Color =
+    when (feedback) {
+        CommandFeedback.NONE -> MaterialTheme.colorScheme.onSurfaceVariant
+        CommandFeedback.SENDING, CommandFeedback.SENT -> MaterialTheme.colorScheme.tertiary
+        CommandFeedback.NO_NODE, CommandFeedback.FAILED -> MaterialTheme.colorScheme.error
+    }
+
+@Composable
 private fun sessionStatusColor(sessionState: WorkoutSessionState): Color =
     when (sessionState) {
         WorkoutSessionState.IDLE -> MaterialTheme.colorScheme.onSurfaceVariant
@@ -382,6 +435,25 @@ private fun WearWorkoutActivePreview() {
                 elapsedTimeMs = 12 * 60_000L + 34_000L,
                 dailyGoalMinutes = 30,
                 lastAction = "START",
+                commandFeedback = CommandFeedback.SENT,
+                lastCommand = WorkoutAction.START,
+            ),
+            onStart = {},
+            onPause = {},
+            onStop = {},
+        )
+    }
+}
+
+@WearPreviewDevices
+@WearPreviewFontScales
+@Composable
+private fun WearWorkoutNoNodePreview() {
+    FitnessTrackerWorkoutSessionCompanionTheme {
+        WearWorkoutScreen(
+            state = WearWorkoutUiState(
+                commandFeedback = CommandFeedback.NO_NODE,
+                lastCommand = WorkoutAction.START,
             ),
             onStart = {},
             onPause = {},
