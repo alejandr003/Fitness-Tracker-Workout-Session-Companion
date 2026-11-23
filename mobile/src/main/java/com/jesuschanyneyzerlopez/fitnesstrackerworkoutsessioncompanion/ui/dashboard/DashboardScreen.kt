@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,7 +104,7 @@ fun WorkoutDashboardContent(
 
             state.lastAction?.let { action ->
                 Text(
-                    text = "Última acción: $action",
+                    text = "Last action: $action",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth(),
@@ -135,7 +137,7 @@ private fun SessionStatusCard(state: WorkoutUiState, statusColor: Color) {
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "Estado",
+                    text = "Status",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -163,7 +165,7 @@ private fun TimerCard(state: WorkoutUiState, statusColor: Color) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Cronómetro",
+                text = "Timer",
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
@@ -172,9 +174,13 @@ private fun TimerCard(state: WorkoutUiState, statusColor: Color) {
                 text = formatElapsed(state.elapsedTimeMs),
                 fontSize = 52.sp,
                 fontWeight = FontWeight.Bold,
-                color = statusColor.takeIf { state.sessionState == WorkoutSessionState.ACTIVE }
-                    ?: MaterialTheme.colorScheme.onPrimaryContainer,
+                color = if (state.sessionState == WorkoutSessionState.ACTIVE) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                },
                 textAlign = TextAlign.Center,
+                maxLines = 1,
             )
         }
     }
@@ -201,7 +207,7 @@ private fun DailyGoalCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Meta diaria",
+                    text = "Daily goal",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -223,7 +229,7 @@ private fun DailyGoalCard(
                 ),
             )
             Text(
-                text = "Progreso: $elapsedMinutes / $dailyGoalMinutes min (${(progress * 100).roundToInt()}%)",
+                text = "Progress: $elapsedMinutes / $dailyGoalMinutes min (${(progress * 100).roundToInt()}%)",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -251,47 +257,55 @@ private fun ControlsCard(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Text(
-                text = "Controles",
+                text = "Controls",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = onStart,
                     enabled = canStart,
                     modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
-                    Text(if (sessionState == WorkoutSessionState.PAUSED) "Reanudar" else "Start")
+                    Text(
+                        text = if (sessionState == WorkoutSessionState.PAUSED) "Resume" else "Start",
+                        maxLines = 1,
+                        softWrap = false,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
                 OutlinedButton(
                     onClick = onPause,
                     enabled = canPause,
                     modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
                 ) {
-                    Text("Pause")
+                    Text("Pause", maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
                 }
                 Button(
                     onClick = onStop,
                     enabled = canStop,
                     modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 10.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
                     ),
                 ) {
-                    Text("Stop")
+                    Text("Stop", maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis)
                 }
             }
             if (isActive) {
                 Text(
-                    text = "Sesión activa: el cronómetro está corriendo.",
+                    text = "Session active: timer running.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -301,17 +315,18 @@ private fun ControlsCard(
 }
 
 private fun sessionStatusLabel(state: WorkoutSessionState): String = when (state) {
-    WorkoutSessionState.IDLE -> "Inactivo"
-    WorkoutSessionState.ACTIVE -> "Activo"
-    WorkoutSessionState.PAUSED -> "Pausado"
-    WorkoutSessionState.STOPPED -> "Detenido"
+    WorkoutSessionState.IDLE -> "Idle"
+    WorkoutSessionState.ACTIVE -> "Active"
+    WorkoutSessionState.PAUSED -> "Paused"
+    WorkoutSessionState.STOPPED -> "Stopped"
 }
 
+@Composable
 private fun sessionStatusColor(state: WorkoutSessionState): Color = when (state) {
-    WorkoutSessionState.IDLE -> Color(FitnessPalette.STATE_IDLE)
-    WorkoutSessionState.ACTIVE -> Color(FitnessPalette.STATE_ACTIVE)
-    WorkoutSessionState.PAUSED -> Color(FitnessPalette.STATE_PAUSED)
-    WorkoutSessionState.STOPPED -> Color(FitnessPalette.STATE_STOPPED)
+    WorkoutSessionState.IDLE -> MaterialTheme.colorScheme.outline
+    WorkoutSessionState.ACTIVE -> MaterialTheme.colorScheme.primary
+    WorkoutSessionState.PAUSED -> MaterialTheme.colorScheme.secondary
+    WorkoutSessionState.STOPPED -> MaterialTheme.colorScheme.error
 }
 
 private fun formatElapsed(elapsedMs: Long): String {
