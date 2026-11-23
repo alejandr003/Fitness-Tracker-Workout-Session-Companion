@@ -85,11 +85,6 @@ fun WorkoutDashboardContent(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
             )
-            Text(
-                text = "Dashboard móvil · listo para recibir comandos del reloj (Issue #3)",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
 
             SessionStatusCard(state = state, statusColor = statusColor)
             TimerCard(state = state, statusColor = statusColor)
